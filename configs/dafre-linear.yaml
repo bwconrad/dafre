@@ -1,0 +1,28 @@
+name: dafre-linear
+accelerator: gpu
+devices: 1
+precision: 16
+max_steps: 50000
+val_check_interval: 2000
+data:
+  root: data/dafre
+  size: 224
+  min_scale: 0.8
+  batch_size: 128
+  workers: 6
+  erase_prob: 0.25
+  use_trivial_aug: true
+model:
+  model_name: hf-beit-b16-224-in21k
+  optimizer: sgd
+  lr: 0.1
+  momentum: 0.9
+  weight_decay: 0.0
+  scheduler: cosine
+  warmup_steps: 1000
+  channels_last: true
+  mixup_alpha: 0.0
+  cutmix_alpha: 0.0
+  mix_prob: 1.0
+  label_smoothing: 0.0
+  linear_probe: true
