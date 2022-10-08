@@ -14,7 +14,7 @@ from transformers.models.auto.modeling_auto import \
     AutoModelForImageClassification
 from transformers.optimization import get_cosine_schedule_with_warmup
 
-from .loss import SoftTargetCrossEntropy
+from .loss import SoftBalancedSoftmax, SoftTargetCrossEntropy
 from .mixup import Mixup
 
 MODEL_DICT = {
@@ -57,7 +57,9 @@ class ClassificationModel(pl.LightningModule):
         label_smoothing: float = 0.0,
         linear_probe: bool = False,
         image_size: int = 224,
+        loss_type: str = "soft-ce",
         weights: Optional[str] = None,
+        samples_per_class_file: Optional[str] = None,
     ):
         """Classification Model
 
@@ -65,19 +67,22 @@ class ClassificationModel(pl.LightningModule):
             model_name: Name of model checkpoint [vit-b16-224-in21k]
             optimizer: Name of optimizer [adam, adamw, sgd]
             lr: Learning rate
-            betas: Adam betas parameters
+            betas: Adam beta parameters
             momentum: SGD momentum parameter
             weight_decay: Optimizer weight decay
             scheduler: Name of learning rate scheduler [cosine, none]
             warmup_steps: Number of warmup epochs
             channels_last: Change to channels last memory format for possible training speed up
-            mixup_alpha: Mixup alpha value
-            cutmix_alpha: Cutmix alpha value
+            mixup_alpha: Mixup alpha value (not applied if 0)
+            cutmix_alpha: Cutmix alpha value (not applied if 0)
             mix_prob: Probability of applying mixup or cutmix
             label_smoothing: Amount of label smoothing
-            linear_probe: Only train the classifier and keep other layers frozen
+            linear_probe: Only train the classifier and keep all other layers frozen
             image_size: Size of input images
-            weights: Path of checkpoint to load weights from. E.g when resuming after linear probing
+            loss_type: Name of loss function [soft-ce, balanced-sm]
+            weights: Path to previous checkpoint file. E.g when resuming after linear probing
+            samples_per_class_file: Path to file with number of samples per class
+
         """
         super().__init__()
         self.save_hyperparameters()
@@ -96,7 +101,9 @@ class ClassificationModel(pl.LightningModule):
         self.label_smoothing = label_smoothing
         self.linear_probe = linear_probe
         self.image_size = image_size
+        self.loss_type = loss_type
         self.weights = weights
+        self.samples_per_class_file = samples_per_class_file
         self.n_classes = 3263
 
         # Initialize network
@@ -161,7 +168,16 @@ class ClassificationModel(pl.LightningModule):
         )
 
         # Define loss
-        self.loss_fn = SoftTargetCrossEntropy()
+        if self.loss_type == "soft-ce":
+            self.loss_fn = SoftTargetCrossEntropy()
+        elif self.loss_type == "balanced-sm":
+            assert self.samples_per_class_file
+            samples_per_class = torch.load(self.samples_per_class_file)
+            self.loss_fn = SoftBalancedSoftmax(samples_per_class)
+        else:
+            raise ValueError(
+                f"{self.loss_type} is not an available loss function. Should be one of ['soft-ce', 'balanced-sm']"
+            )
 
         # Define regularizers
         self.mixup = Mixup(
