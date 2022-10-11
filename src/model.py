@@ -82,7 +82,6 @@ class ClassificationModel(pl.LightningModule):
             loss_type: Name of loss function [soft-ce, balanced-sm]
             weights: Path to previous checkpoint file. E.g when resuming after linear probing
             samples_per_class_file: Path to file with number of samples per class
-
         """
         super().__init__()
         self.save_hyperparameters()
