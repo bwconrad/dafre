@@ -61,6 +61,7 @@ class ClassificationModel(pl.LightningModule):
         image_size: int = 224,
         loss_type: str = "soft-ce",
         weights: Optional[str] = None,
+        load_classifier_weights: bool = True,
         samples_per_class_file: Optional[str] = None,
     ):
         """Classification Model
@@ -83,6 +84,7 @@ class ClassificationModel(pl.LightningModule):
             image_size: Size of input images
             loss_type: Name of loss function [soft-ce, balanced-sm]
             weights: Path to previous checkpoint file. E.g when resuming after linear probing
+            load_classifier_weights: Whether to load classifier weights from checkpoint
             samples_per_class_file: Path to file with number of samples per class
         """
         super().__init__()
@@ -104,6 +106,7 @@ class ClassificationModel(pl.LightningModule):
         self.image_size = image_size
         self.loss_type = loss_type
         self.weights = weights
+        self.load_classifier_weights = load_classifier_weights
         self.samples_per_class_file = samples_per_class_file
         self.n_classes = 3263
 
@@ -141,11 +144,14 @@ class ClassificationModel(pl.LightningModule):
             # Remove prefix from key names
             new_state_dict = {}
             for k, v in ckpt.items():
-                if k.startswith("net"):
+                if k.startswith("net") and not (
+                    (k.startswith("net.classifier") or k.startswith("net.head"))
+                    and not self.load_classifier_weights
+                ):
                     k = k.replace("net" + ".", "")
                     new_state_dict[k] = v
 
-            self.net.load_state_dict(new_state_dict, strict=True)
+            self.net.load_state_dict(new_state_dict, strict=False)
 
         # Freeze transformer layers if linear probing
         if self.linear_probe:
