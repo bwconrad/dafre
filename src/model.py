@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple
+from typing import Optional, Tuple
 
 import pandas as pd
 import pytorch_lightning as pl
@@ -8,8 +8,10 @@ import torch.nn.functional as F
 from torch.optim import SGD, Adam, AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torchmetrics import MetricCollection
-from torchmetrics.classification.accuracy import Accuracy
-from torchmetrics.classification.stat_scores import StatScores
+from torchmetrics.classification.accuracy import MulticlassAccuracy
+from torchmetrics.classification.f_beta import MulticlassF1Score
+from torchmetrics.classification.precision_recall import (MulticlassPrecision,
+                                                          MulticlassRecall)
 from transformers.models.auto.modeling_auto import \
     AutoModelForImageClassification
 from transformers.optimization import get_cosine_schedule_with_warmup
@@ -153,20 +155,31 @@ class ClassificationModel(pl.LightningModule):
 
         # Define metrics
         self.train_metrics = MetricCollection(
-            {"acc": Accuracy(top_k=1), "acc_top5": Accuracy(top_k=5)}
+            {"acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes)}
         )
         self.val_metrics = MetricCollection(
-            {"acc": Accuracy(top_k=1), "acc_top5": Accuracy(top_k=5)}
+            {
+                "acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes),
+                "acc_top5": MulticlassAccuracy(top_k=5, num_classes=self.n_classes),
+                "precision": MulticlassPrecision(num_classes=self.n_classes),
+                "recall": MulticlassRecall(num_classes=self.n_classes),
+                "f1": MulticlassF1Score(num_classes=self.n_classes),
+            }
         )
         self.test_metrics = MetricCollection(
             {
-                "acc": Accuracy(top_k=1),
-                "acc_top5": Accuracy(top_k=5),
-                "stats": StatScores(reduce="macro", num_classes=self.n_classes),
+                "acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes),
+                "acc_top5": MulticlassAccuracy(top_k=5, num_classes=self.n_classes),
+                "acc_each": MulticlassAccuracy(
+                    average=None, num_classes=self.n_classes
+                ),
+                "precision": MulticlassPrecision(num_classes=self.n_classes),
+                "recall": MulticlassRecall(num_classes=self.n_classes),
+                "f1": MulticlassF1Score(num_classes=self.n_classes),
             }
         )
 
-        # Define loss
+        # Define loss function
         if self.loss_type == "soft-ce":
             self.loss_fn = SoftTargetCrossEntropy()
         elif self.loss_type == "balanced-sm":
@@ -229,8 +242,6 @@ class ClassificationModel(pl.LightningModule):
             if len(v.size()) == 0:
                 self.log(f"{mode}_{k.lower()}", v, on_epoch=True)
 
-        if mode == "test":
-            return metrics["stats"]
         return loss
 
     def training_step(self, batch, _):
@@ -243,19 +254,10 @@ class ClassificationModel(pl.LightningModule):
     def test_step(self, batch, _):
         return self.shared_step(batch, "test")
 
-    def test_epoch_end(self, outputs: List[torch.Tensor]):
+    def test_epoch_end(self, _):
         """Save per-class accuracies to csv"""
-        # Aggregate all batch stats
-        combined_stats = torch.sum(torch.stack(outputs, dim=-1), dim=-1)
-
-        # Calculate accuracy per class
-        per_class_acc = []
-        for tp, _, _, _, sup in combined_stats:
-            acc = tp / sup
-            per_class_acc.append((acc.item(), sup.item()))
-
-        # Save to csv
-        df = pd.DataFrame(per_class_acc, columns=["acc", "n"])
+        per_class_acc = self.test_metrics["acc_each"].compute().cpu().numpy()
+        df = pd.DataFrame(per_class_acc, columns=["acc"])
         df.to_csv("per-class-acc-test.csv")
 
     def configure_optimizers(self):
