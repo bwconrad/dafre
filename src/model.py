@@ -155,27 +155,33 @@ class ClassificationModel(pl.LightningModule):
 
         # Define metrics
         self.train_metrics = MetricCollection(
-            {"acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes)}
+            {
+                "acc": MulticlassAccuracy(
+                    top_k=1, num_classes=self.n_classes, average="micro"
+                )
+            }
         )
         self.val_metrics = MetricCollection(
             {
-                "acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes),
-                "acc_top5": MulticlassAccuracy(top_k=5, num_classes=self.n_classes),
-                "precision": MulticlassPrecision(num_classes=self.n_classes),
-                "recall": MulticlassRecall(num_classes=self.n_classes),
-                "f1": MulticlassF1Score(num_classes=self.n_classes),
+                "acc": MulticlassAccuracy(
+                    top_k=1, num_classes=self.n_classes, average="micro"
+                ),
+                "acc_top5": MulticlassAccuracy(
+                    top_k=5, num_classes=self.n_classes, average="micro"
+                ),
             }
         )
         self.test_metrics = MetricCollection(
             {
-                "acc": MulticlassAccuracy(top_k=1, num_classes=self.n_classes),
-                "acc_top5": MulticlassAccuracy(top_k=5, num_classes=self.n_classes),
+                "acc": MulticlassAccuracy(
+                    top_k=1, num_classes=self.n_classes, average="micro"
+                ),
+                "acc_top5": MulticlassAccuracy(
+                    top_k=5, num_classes=self.n_classes, average="micro"
+                ),
                 "acc_each": MulticlassAccuracy(
                     average=None, num_classes=self.n_classes
                 ),
-                "precision": MulticlassPrecision(num_classes=self.n_classes),
-                "recall": MulticlassRecall(num_classes=self.n_classes),
-                "f1": MulticlassF1Score(num_classes=self.n_classes),
             }
         )
 
