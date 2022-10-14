@@ -46,7 +46,7 @@ for k, v in ckpt.items():
 model.load_state_dict(new_state_dict, strict=True)
 
 # Load label names
-labels = pd.read_csv("classid_classname.csv", names=["id", "name"])["name"].tolist()
+labels = pd.read_csv("app/classid_classname.csv", names=["id", "name"])["name"].tolist()
 labels = [l.replace("_", " ").title() for l in labels]  # Remove _ and capitalize
 
 # Run app
