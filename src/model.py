@@ -9,9 +9,6 @@ from torch.optim import SGD, Adam, AdamW
 from torch.optim.lr_scheduler import LambdaLR
 from torchmetrics import MetricCollection
 from torchmetrics.classification.accuracy import MulticlassAccuracy
-from torchmetrics.classification.f_beta import MulticlassF1Score
-from torchmetrics.classification.precision_recall import (MulticlassPrecision,
-                                                          MulticlassRecall)
 from transformers.models.auto.modeling_auto import \
     AutoModelForImageClassification
 from transformers.optimization import get_cosine_schedule_with_warmup
@@ -38,6 +35,10 @@ MODEL_DICT = {
     "hf-beit-b16-224-in21k": "microsoft/beit-base-patch16-224-pt22k-ft22k",
     "hf-beit-l16-224-in21k": "microsoft/beit-large-patch16-224-pt22k-ft22k",
     "timm-beitv2-b16-224-in21k": "beitv2_base_patch16_224_in22k",
+    "timm-clip-b32-224": "vit_base_patch32_224_clip_laion2b",
+    "timm-clip-l14-224": "vit_large_patch14_224_clip_laion2b",
+    "timm-clip-h14-224": "vit_huge_patch14_224_clip_laion2b",
+    "timm-clip-g14-224": "vit_giant_patch14_224_clip_laion2b",
 }
 
 

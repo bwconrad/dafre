@@ -1,6 +1,5 @@
 import os
 from collections import Counter
-from typing import Optional
 
 import pytorch_lightning as pl
 import torch
