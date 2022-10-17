@@ -41,7 +41,7 @@ ckpt_path = hf_hub_download(
     "beit-base-patch16-224-pt22k-ft22k-dafre.ckpt",
     use_auth_token=True,
 )
-ckpt = torch.load(ckpt_path)
+ckpt = torch.load(ckpt_path)["state_dict"]
 
 model = AutoModelForImageClassification.from_pretrained(
     "microsoft/beit-base-patch16-224-pt22k-ft22k",
