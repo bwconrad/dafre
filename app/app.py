@@ -2,13 +2,17 @@ import gradio as gr
 import pandas as pd
 import torch
 import torch.nn.functional as F
+from detect import detect
 from huggingface_hub import hf_hub_download
 from torchvision.transforms import Compose, Normalize, Resize, ToTensor
 from transformers.models.auto.modeling_auto import \
     AutoModelForImageClassification
 
 
-def run(image):
+def run(image, auto_crop):
+    if auto_crop:
+        image = detect(image)
+
     # Preprocess image
     transforms = Compose(
         [
@@ -23,12 +27,21 @@ def run(image):
     prediction = F.softmax(model(pixel_values=image).logits[0], dim=0)
     confidences = {labels[i]: float(prediction[i]) for i in range(len(labels))}
 
-    return confidences
+    # Denormalize image
+    image.clamp_(min=float(image.min()), max=float(image.max()))
+    image.add_(-float(image.min())).div_(float(image.max()) - float(image.min()) + 1e-5)
+    image = image.squeeze(0).permute(1, 2, 0).numpy()
+
+    return confidences, image
 
 
 # Load model
-ckpt_path = "weights/best-epoch=1-val_acc=0.9526-test_acc=0.9484.ckpt"
-ckpt = torch.load(ckpt_path)["state_dict"]
+ckpt_path = hf_hub_download(
+    "bwconrad/beit-base-patch16-224-pt22k-ft22k-dafre",
+    "beit-base-patch16-224-pt22k-ft22k-dafre.ckpt",
+    use_auth_token=True,
+)
+ckpt = torch.load(ckpt_path)
 
 model = AutoModelForImageClassification.from_pretrained(
     "microsoft/beit-base-patch16-224-pt22k-ft22k",
@@ -56,8 +69,8 @@ app = gr.Interface(
     title="Classification Model",
     description=description,
     fn=run,
-    inputs=[gr.Image(type="pil", tool="select")],
-    outputs=gr.Label(num_top_classes=5),
+    inputs=[gr.Image(type="pil", tool="select"), gr.Checkbox(label="auto_crop")],
+    outputs=[gr.Label(num_top_classes=5), gr.Image().style(height=224, width=224)],
     allow_flagging="never",
 )
 app.launch()
