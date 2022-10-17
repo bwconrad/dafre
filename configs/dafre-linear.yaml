@@ -26,3 +26,4 @@ model:
   mix_prob: 1.0
   label_smoothing: 0.0
   linear_probe: true
+  loss_type: soft-ce

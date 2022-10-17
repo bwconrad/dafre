@@ -1,8 +1,8 @@
-name: dafre-ft
+name: dafre-class-balanced-linear
 accelerator: gpu
 devices: 1
 precision: 16
-max_steps: 50000
+max_steps: 10000
 val_check_interval: 2000
 data:
   root: data/dafre
@@ -12,19 +12,20 @@ data:
   workers: 6
   erase_prob: 0.25
   use_trivial_aug: true
+  use_balanced_sampler: true
 model:
   model_name: hf-beit-b16-224-in21k
   optimizer: sgd
-  lr: 0.1
+  lr: 0.01
   momentum: 0.9
   weight_decay: 0.0
   scheduler: cosine
-  warmup_steps: 2000
+  warmup_steps: 500
   channels_last: true
   mixup_alpha: 1.0
   cutmix_alpha: 1.0
   mix_prob: 1.0
   label_smoothing: 0.1
-  linear_probe: false
+  linear_probe: true
   loss_type: soft-ce
-  weights: path/to/linear/checkpoint
+  weights: path/to/ft/checkpoint
