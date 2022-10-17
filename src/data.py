@@ -13,7 +13,7 @@ class DataModule(pl.LightningDataModule):
         self,
         root: str = "data/dafre/",
         size: int = 224,
-        min_scale: float = 0.08,
+        min_scale: float = 0.8,
         batch_size: int = 32,
         workers: int = 4,
         rand_aug_n: int = 0,

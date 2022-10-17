@@ -45,9 +45,9 @@ MODEL_DICT = {
 class ClassificationModel(pl.LightningModule):
     def __init__(
         self,
-        model_name: str = "hf-vit-b16-224-in21k",
+        model_name: str = "hf-beit-b16-224-in21k",
         optimizer: str = "sgd",
-        lr: float = 3e-2,
+        lr: float = 0.1,
         betas: Tuple[float, float] = (0.9, 0.999),
         momentum: float = 0.9,
         weight_decay: float = 0.0,
