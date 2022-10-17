@@ -39,7 +39,6 @@ def run(image, auto_crop):
 ckpt_path = hf_hub_download(
     "bwconrad/beit-base-patch16-224-pt22k-ft22k-dafre",
     "beit-base-patch16-224-pt22k-ft22k-dafre.ckpt",
-    use_auth_token=True,
 )
 ckpt = torch.load(ckpt_path)["state_dict"]
 
