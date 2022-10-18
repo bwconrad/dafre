@@ -65,6 +65,7 @@ labels = [l.replace("_", " ").title() for l in labels]  # Remove _ and capitaliz
 description = """
 A character classification model trained on the DAF:re dataset which consists of 3263 characters from anime, manga and video game series. 
 A list of all characters can be found [here](https://github.com/bwconrad/dafre/blob/main/app/classid_classname.csv).
+Model training code can be found [here](https://github.com/bwconrad/dafre).
 
 The model is trained and performs best on head and shoulder portrait images. 
 Users can manually crop images through the UI or check the `auto_crop` box to let a face detection model do the cropping.
