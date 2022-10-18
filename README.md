@@ -1,5 +1,12 @@
 # Anime Character Classification
+[![Hugging Face Spaces](https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/bwconrad/anime-character-classification)
+
 Code for training anime character classification models on the [DAF:re dataset](https://arxiv.org/abs/2101.08674) which contains 3263 classes. A fine-tuned BEiT-b/16 model achieves a test accuracy of 94.84\%.
+
+## Demo
+![Demo app](app/screenshot.png)
+- A demo app for the model is available in the Huggingface Space [here](https://huggingface.co/spaces/bwconrad/anime-character-classification).
+- It can also be run locally with `python app/app.py`.
 
 
 ## Requirements

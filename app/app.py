@@ -78,9 +78,9 @@ app = gr.Interface(
     outputs=[gr.Label(num_top_classes=5), gr.Image().style(height=224, width=224)],
     allow_flagging="never",
     examples=[
-        ["app/examples/rei.jpg"],
-        ["app/examples/futaba.jpg"],
-        ["app/examples/yotsuba.jpg"],
+        ["app/examples/rei.jpg", False],
+        ["app/examples/futaba.jpg", False],
+        ["app/examples/yotsuba.jpg", True],
     ],
 )
 app.launch()
