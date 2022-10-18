@@ -11,7 +11,7 @@ from transformers.models.auto.modeling_auto import \
 
 def run(image, auto_crop):
     if auto_crop:
-        image = detect(image)
+        image = detect(image, "app/lbpcascade_animeface.xml")
 
     # Preprocess image
     transforms = Compose(
@@ -62,14 +62,25 @@ labels = pd.read_csv("app/classid_classname.csv", names=["id", "name"])["name"].
 labels = [l.replace("_", " ").title() for l in labels]  # Remove _ and capitalize
 
 # Run app
-description = """ """
+description = """
+A character classification model trained on the DAF:re dataset which consists of 3263 characters from anime, manga and video game series. 
+A list of all characters can be found [here](https://github.com/bwconrad/dafre/blob/main/app/classid_classname.csv).
+
+The model is trained and performs best on head and shoulder portrait images. 
+Users can manually crop images through the UI or check the `auto_crop` box to let a face detection model do the cropping.
+"""
 
 app = gr.Interface(
-    title="Classification Model",
+    title="Anime Character Classification",
     description=description,
     fn=run,
     inputs=[gr.Image(type="pil", tool="select"), gr.Checkbox(label="auto_crop")],
     outputs=[gr.Label(num_top_classes=5), gr.Image().style(height=224, width=224)],
     allow_flagging="never",
+    examples=[
+        ["app/examples/rei.jpg"],
+        ["app/examples/futaba.jpg"],
+        ["app/examples/yotsuba.jpg"],
+    ],
 )
 app.launch()
