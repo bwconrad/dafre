@@ -64,6 +64,7 @@ class ClassificationModel(pl.LightningModule):
         weights: Optional[str] = None,
         load_classifier_weights: bool = True,
         samples_per_class_file: Optional[str] = None,
+        n_classes: int = 3263,
     ):
         """Classification Model
 
@@ -87,6 +88,7 @@ class ClassificationModel(pl.LightningModule):
             weights: Path to previous checkpoint file. E.g when resuming after linear probing
             load_classifier_weights: Whether to load classifier weights from checkpoint
             samples_per_class_file: Path to file with number of samples per class
+            n_classes: Number of target classes
         """
         super().__init__()
         self.save_hyperparameters()
@@ -109,7 +111,7 @@ class ClassificationModel(pl.LightningModule):
         self.weights = weights
         self.load_classifier_weights = load_classifier_weights
         self.samples_per_class_file = samples_per_class_file
-        self.n_classes = 3263
+        self.n_classes = n_classes
 
         # Initialize network
         try:
@@ -235,12 +237,6 @@ class ClassificationModel(pl.LightningModule):
             x, y = self.mixup(x, y)
         else:
             y = F.one_hot(y, num_classes=self.n_classes).float()
-
-        # if mode == "train":
-        #     from torchvision.utils import save_image
-
-        #     save_image(x[:16], "things/0.png", normalize=True)
-        #     exit()
 
         # Pass through network
         pred = self(x)
