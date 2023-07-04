@@ -5,7 +5,7 @@ timm==0.6.11
 torch==1.13.1
 torchmetrics==0.10.0
 torchvision==0.13.1
-transformers==4.21.0
+transformers==4.30.0
 tqdm==4.64.0
 gradio==3.34.0
 huggingface_hub==0.10.1
