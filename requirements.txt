@@ -7,7 +7,7 @@ torchmetrics==0.10.0
 torchvision==0.13.1
 transformers==4.36.0
 tqdm==4.64.0
-gradio==4.11.0
+gradio==4.19.2
 huggingface_hub==0.10.1
 opencv_python==4.6.0.66
 Pillow==10.0.1
