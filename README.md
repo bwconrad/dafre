@@ -14,7 +14,7 @@ Code for training anime character classification models on the [DAF:re dataset](
 - `pip install -r requirements.txt`
 
 ## Data Preparation
-- Download `dafre_faces.tar.gz` and `labels.tar.gz` from [here](https://drive.google.com/drive/folders/1S_T8R7gbY47dfRH9dUBXOstlOwVuMmXe?usp=sharing) and extract both into the same directory (e.g. `data/`).
+- Download `dafre_faces.tar.gz` and `labels.tar.gz` from [here](https://mega.nz/folder/TLAXzTTR#0ntg-FrJ8Q1C5nPqbGnQ8g) and extract both into the same directory (e.g. `data/`).
 - Process the dataset by running: `python scripts/process_defre.py -i data/`
 
 ## Usage
